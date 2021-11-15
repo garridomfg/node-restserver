@@ -13,6 +13,7 @@ const PatientSchema = Schema({
     role: {
         type: String,
         required: [true, 'Role required'],
+        default: 'PATIENT_ROLE',
         enum: ['ADMIN_ROLE', 'PATIENT_ROLE'],
     },
     state: {
