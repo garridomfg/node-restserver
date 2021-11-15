@@ -1,6 +1,7 @@
 const { response, request } = require("express");
 const bcryptjs = require('bcryptjs');
 const Patient = require('../models/patient');
+const Professional = require('../models/professional');
 const { generateJWT } = require("../helpers/generate-jwt");
 const { googleVerify } = require("../helpers/google-verify");
 
@@ -11,27 +12,37 @@ const login = async (req = request, res = response) => {
     try {
 
         // Check if email exists
-        const patient = await Patient.findOne({ email });
-        if (!patient) return res.status(400).json({
+        let user = await Promise.all([
+            Patient.findOne({ email }),
+            Professional.findOne({ email }),
+        ]);
+
+        if (user[0] === null) {
+            user = user[1];
+        } else {
+            user = user[0];
+        }
+
+        if (!user) return res.status(400).json({
             msg: 'Invalid credentials',
         });
 
         // Check if user state is active
-        if (!patient.state) return res.status(400).json({
+        if (!user.state) return res.status(400).json({
             msg: 'Patient is no longer active',
         });
 
         // Check password
-        const validPassword = bcryptjs.compareSync(password, patient.password);
+        const validPassword = bcryptjs.compareSync(password, user.password);
         if (!validPassword) return res.status(400).json({
             msg: 'Invalid credentials',
         });
 
         // Generate JWT
-        const token = await generateJWT(patient.id);
+        const token = await generateJWT(user.id);
 
         res.json({
-            patient,
+            user,
             token
         });   
     } catch (error) {

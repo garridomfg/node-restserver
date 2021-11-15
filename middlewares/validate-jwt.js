@@ -1,6 +1,7 @@
 const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 const Patient = require('../models/patient');
+const Professional = require('../models/professional');
 
 const validateJWT = async (req = request, res = response, next) => {
     const token = req.header('Authorization');
@@ -11,7 +12,18 @@ const validateJWT = async (req = request, res = response, next) => {
     try {
         const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 
-        const user = await Patient.findById(uid);
+        let user = await Promise.all([
+            Patient.findById(uid),
+            Professional.findById(uid),
+        ]);
+
+        if (user[0] === null) {
+            user = user[1];
+        } else {
+            user = user[0];
+        }
+        console.log(user);
+
 
         if (!user) {
             return res.status(401).json({
@@ -35,6 +47,8 @@ const validateJWT = async (req = request, res = response, next) => {
         })
     }
 }
+
+
 
 module.exports = {
     validateJWT,
