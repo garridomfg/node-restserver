@@ -1,8 +1,7 @@
 const { response, request } = require('express');
-const bcryptjs = require('bcryptjs');
 const Patient = require('../models/patient');
 
-const patientsGet = async (req = request, res = response) => {
+const getPatients = async (req = request, res = response) => {
     const { limit = '' } = req.query;
     const query = [];
 
@@ -18,6 +17,7 @@ const patientsGet = async (req = request, res = response) => {
         Patient.countDocuments({ state: true }),
         Patient.find(statement, null, { sort: { name: 1} })
         .limit(Number(limit))
+        .populate('professional')
     ]);
 
     res.json({
@@ -26,14 +26,9 @@ const patientsGet = async (req = request, res = response) => {
     });
 }
 
-const patientsPut = async (req = request, res = response) => {
+const updatePatient = async (req = request, res = response) => {
     const { id } = req.params;
-    const { _id, password, google, ...rest } = req.body;
-
-    if (password) {
-        const salt = bcryptjs.genSaltSync();
-        rest.password = bcryptjs.hashSync(password, salt);
-    }
+    const { _id, ...rest } = req.body;
 
     const patient = await Patient.findByIdAndUpdate(id, rest);
 
@@ -42,13 +37,9 @@ const patientsPut = async (req = request, res = response) => {
     });
 }
 
-const patientsPost = async (req = request, res = response) => {
+const newPatient = async (req = request, res = response) => {
     const body = req.body;
     const patient = new Patient(body);
-    
-    // Encrypt password
-    const salt = bcryptjs.genSaltSync();
-    patient.password = bcryptjs.hashSync(patient.password, salt);
     
     // Save in dB
     await patient.save();
@@ -58,7 +49,7 @@ const patientsPost = async (req = request, res = response) => {
     });
 }
 
-const patientsDelete = async (req = request, res = response) => {
+const deletePatient = async (req = request, res = response) => {
     const { id } = req.params;
 
     // The patient are not deleted from de dB, otherwise the state is turned to false
@@ -72,8 +63,8 @@ const patientsDelete = async (req = request, res = response) => {
 
 
 module.exports = {
-    patientsGet,
-    patientsPut,
-    patientsPost,
-    patientsDelete,
+    getPatients,
+    updatePatient,
+    newPatient,
+    deletePatient,
 }

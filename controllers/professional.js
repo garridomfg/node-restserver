@@ -1,8 +1,7 @@
 const { response, request } = require('express');
-const bcryptjs = require('bcryptjs');
 const Professional = require('../models/professional');
 
-const professionalsGet = async (req = request, res = response) => {
+const getProfessionals = async (req = request, res = response) => {
     const { limit = '' } = req.query;
     const query = [];
 
@@ -13,27 +12,23 @@ const professionalsGet = async (req = request, res = response) => {
     const statement = (query.length === 0) ? { state: true } : { $and: query };
 
     // Get the professional which states are true or active, and return them sorted alphabetically by name
-    // also take a limit as parameter to define the number of patient getted
-    const [total, professional] = await Promise.all([
+    // also take a limit as parameter to define the number of professional getted
+    const [total, professionals] = await Promise.all([
         Professional.countDocuments({ state: true }),
         Professional.find(statement, null, { sort: { name: 1} })
         .limit(Number(limit))
+        .populate('patient')
     ]);
 
     res.json({
         total,
-        professional
+        professionals
     });
 }
 
-const professionalPut = async (req = request, res = response) => {
+const updateProfessional = async (req = request, res = response) => {
     const { id } = req.params;
-    const { _id, password, google, ...rest } = req.body;
-
-    if (password) {
-        const salt = bcryptjs.genSaltSync();
-        rest.password = bcryptjs.hashSync(password, salt);
-    }
+    const { _id, ...rest } = req.body;
 
     const professional = await Professional.findByIdAndUpdate(id, rest);
 
@@ -42,13 +37,9 @@ const professionalPut = async (req = request, res = response) => {
     });
 }
 
-const professionalPost = async (req = request, res = response) => {
+const newProfessional = async (req = request, res = response) => {
     const body = req.body;
     const professional = new Professional(body);
-    
-    // Encrypt password
-    const salt = bcryptjs.genSaltSync();
-    professional.password = bcryptjs.hashSync(professional.password, salt);
     
     // Save in dB
     await professional.save();
@@ -58,11 +49,12 @@ const professionalPost = async (req = request, res = response) => {
     });
 }
 
-const professionalDelete = async (req = request, res = response) => {
+const deleteProfessional = async (req = request, res = response) => {
     const { id } = req.params;
 
     // The professional are not deleted from de dB, otherwise the state is turned to false
     const professional = await Professional.findByIdAndUpdate(id, { state: false });
+
     res.json({
         professional,
     });
@@ -71,8 +63,8 @@ const professionalDelete = async (req = request, res = response) => {
 
 
 module.exports = {
-    professionalsGet,
-    professionalPut,
-    professionalPost,
-    professionalDelete,
+    getProfessionals,
+    updateProfessional,
+    newProfessional,
+    deleteProfessional,
 }
