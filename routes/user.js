@@ -32,7 +32,6 @@ router.get('/:role', [
 // UPDATE a user
 router.put('/:id', [
     validateJWT,
-    isAdminRole,
     check('id', 'Invalid ID').isMongoId(),
     check('id').custom(userExistsById),
     check('role').custom(isValidRole),
