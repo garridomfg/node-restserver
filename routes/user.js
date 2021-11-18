@@ -11,8 +11,8 @@ const { validateInputs,
     isAdminRole,
 } = require('../middlewares');
 
-const { getPatientsUsers, 
-        getProfessionalsUsers,
+const { getUsers,
+        getUsersByRole,
         newPatientUser,
         newProfessionalUser,
         updateUser,
@@ -21,10 +21,13 @@ const { getPatientsUsers,
 const router = Router();
 
 // GET all patients users
-router.get('/get-patients-users', getPatientsUsers);
+router.get('/', getUsers);
 
-// GET all professionals users
-router.get('/get-professionals-users', getProfessionalsUsers);
+// GET patients by role
+router.get('/:role', [
+    check('role').custom(isValidRole),
+    validateInputs
+], getUsersByRole);
 
 // UPDATE a user
 router.put('/:id', [

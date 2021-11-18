@@ -2,7 +2,7 @@ const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 const User = require('../models/user');
 
-const getPatientsUsers = async (req = request, res = response) => {
+const getUsers = async (req = request, res = response, next) => {
     const { limit = '' } = req.query;
     const query = [];
 
@@ -19,6 +19,7 @@ const getPatientsUsers = async (req = request, res = response) => {
         User.find(statement, null, { sort: { name: 1} })
         .limit(Number(limit))
         .populate('patient')
+        .populate('professional')
     ]);
 
     res.json({
@@ -27,22 +28,25 @@ const getPatientsUsers = async (req = request, res = response) => {
     });
 }
 
-const getProfessionalsUsers = async (req = request, res = response) => {
+const getUsersByRole = async (req = request, res = response) => {
     const { limit = '' } = req.query;
+    const { role } = req.params;
     const query = [];
 
     // Add query param to an array which is used later in the find method
     if (limit) query.push({ limit: { '$regex': limit, '$option': 'i' } });
 
-    // Check if there is some query param
-    const statement = (query.length === 0) ? { state: true } : { $and: query };
+    let statement;
+    if (role === 'PATIENT_ROLE') statement = (query.length === 0) ? { state: true, role: 'PATIENT_ROLE' } : { $and: query };
+    if (role === 'PROFESSIONAL_ROLE') statement = (query.length === 0) ? { state: true, role: 'PROFESSIONAL_ROLE' } : { $and: query };
 
     // Get the user which states are true or active, and return them sorted alphabetically by name
     // also take a limit as parameter to define the number of users getted
     const [total, users] = await Promise.all([
-        User.countDocuments({ state: true }),
+        User.countDocuments({ state: true, role }),
         User.find(statement, null, { sort: { name: 1} })
         .limit(Number(limit))
+        .populate('patient')
         .populate('professional')
     ]);
 
@@ -114,8 +118,8 @@ const deleteUser = async (req = request, res = response) => {
 
 
 module.exports = {
-    getPatientsUsers,
-    getProfessionalsUsers,
+    getUsers,
+    getUsersByRole,
     newPatientUser,
     newProfessionalUser,
     updateUser,
