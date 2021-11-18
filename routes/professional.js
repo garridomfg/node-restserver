@@ -3,15 +3,11 @@ const { check } = require('express-validator');
 
 const { validateInputs, validateJWT, isAdminRole } = require('../middlewares');
 
-const { getProfessionals, 
-        updateProfessional,
+const { updateProfessional,
         newProfessional,
         deleteProfessional 
     } = require('../controllers/professional');
 const router = Router();
-
-// GET all professionals
-router.get('/', getProfessionals, );
 
 // UPDATE a professional
 router.put('/:id', [

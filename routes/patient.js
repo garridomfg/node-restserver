@@ -3,15 +3,11 @@ const { check } = require('express-validator');
 
 const { validateInputs, validateJWT, isAdminRole } = require('../middlewares');
 
-const { getPatients, 
-        updatePatient,
+const { updatePatient,
         newPatient,
         deletePatient 
     } = require('../controllers/patient');
 const router = Router();
-
-// GET all patients
-router.get('/', getPatients);
 
 // UPDATE a patient
 router.put('/:id', [
