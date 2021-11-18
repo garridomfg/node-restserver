@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { check } = require('express-validator');
 
-const { validateInputs, validateJWT, isAdminRole } = require('../middlewares');
+const { validateInputs, validateJWT, isProfessionalRole } = require('../middlewares');
 
 const { updateProfessional,
         newProfessional,
@@ -24,7 +24,7 @@ router.post('/', [
 // DELETE a professional from dB, for real do not delete a professional, just change de state to false
 router.delete('/:id', [
     validateJWT,
-    isAdminRole,
+    isProfessionalRole,
     check('id', 'Invalid ID').isMongoId(),
     validateInputs
 ], deleteProfessional);

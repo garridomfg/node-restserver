@@ -8,7 +8,7 @@ const { isValidRole,
 
 const { validateInputs,
     validateJWT,
-    isAdminRole,
+    isProfessionalRole,
 } = require('../middlewares');
 
 const { getUsers,
@@ -67,7 +67,7 @@ router.post('/new-professional-user', [
 // DELETE a user from dB, for real do not delete a patient, just change de state to false
 router.delete('/:id', [
     validateJWT,
-    isAdminRole,
+    isProfessionalRole,
     check('id', 'Invalid ID').isMongoId(),
     check('id').custom(userExistsById),
     validateInputs

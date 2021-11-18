@@ -1,6 +1,6 @@
 const { request, response } = require("express")
 
-const isAdminRole = (req = request, res = response, next) => {
+const isProfessionalRole = (req = request, res = response, next) => {
     
     if (!req.user) {
         return res.status(500).json({
@@ -20,5 +20,5 @@ const isAdminRole = (req = request, res = response, next) => {
 }
 
 module.exports = {
-    isAdminRole,
+    isProfessionalRole,
 }
