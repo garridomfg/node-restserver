@@ -28,6 +28,18 @@ const getUsers = async (req = request, res = response, next) => {
     });
 }
 
+const getUserById = async (req = request, res = response) => {
+    const { id } = req.params;
+
+    const user = await User.findById(id)
+                .populate('patient')
+                .populate('professional');
+
+    res.json({
+        user
+    });
+}
+
 const getUsersByRole = async (req = request, res = response) => {
     const { limit = '' } = req.query;
     const { role } = req.params;
@@ -119,6 +131,7 @@ const deleteUser = async (req = request, res = response) => {
 
 module.exports = {
     getUsers,
+    getUserById,
     getUsersByRole,
     newPatientUser,
     newProfessionalUser,
