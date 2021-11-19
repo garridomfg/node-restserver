@@ -12,7 +12,6 @@ const { validateInputs,
 } = require('../middlewares');
 
 const { getUsers,
-        getUserById,
         getUsersByRole,
         newPatientUser,
         newProfessionalUser,
@@ -23,9 +22,6 @@ const router = Router();
 
 // GET all patients users
 router.get('/', getUsers);
-
-// GET all patients users
-router.get('/:id', getUserById);
 
 // GET patients by role
 router.get('/:role', [
