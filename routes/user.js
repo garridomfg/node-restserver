@@ -31,10 +31,7 @@ router.get('/:role', [
 
 // UPDATE a user
 router.put('/:id', [
-    validateJWT,
     check('id', 'Invalid ID').isMongoId(),
-    check('id').custom(userExistsById),
-    check('role').custom(isValidRole),
     validateInputs
 ], updateUser);
 
@@ -46,7 +43,6 @@ router.post('/new-patient-user', [
     check('password', 'Password must have at least 8 letters').isLength({ min: 8 }),
     check('role', 'Role required').not().isEmpty(),
     check('role').custom(isValidRole),
-    check('date', 'Date required').not().isEmpty(),
     check('name', 'Name required').not().isEmpty(),
     validateInputs,
 ], newPatientUser);

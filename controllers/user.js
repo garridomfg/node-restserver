@@ -80,6 +80,8 @@ const newPatientUser = async (req = request, res = response) => {
     const salt = bcryptjs.genSaltSync();
     user.password = bcryptjs.hashSync(user.password, salt);
     
+    user.date = new Date();
+
     // Save in dB
     await user.save();
 
