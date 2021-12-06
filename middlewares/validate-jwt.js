@@ -5,11 +5,11 @@ const User = require('../models/user');
 const validateJWT = async (req = request, res = response, next) => {
     const token = req.header('Authorization');
     if (!token) return res.status(401).json({
-        msg: 'There is no token in te request',
+        msg: 'There is no token in the request',
     })
 
     try {
-        const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
+        const { uid } = jwt.verify(token, process.env.PRIVATEKEY);
 
         const user = await User.findById(uid);
 

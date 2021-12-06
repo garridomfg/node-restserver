@@ -3,6 +3,7 @@ const bcryptjs = require('bcryptjs');
 const { generateJWT } = require("../helpers/generate-jwt");
 const { googleVerify } = require("../helpers/google-verify");
 const User = require("../models/user");
+const jwt = require('jsonwebtoken');
 
 const login = async (req = request, res = response) => {
 
@@ -89,7 +90,41 @@ const googleSignIn = async (req = request, res = response, next) => {
     }
 }
 
+const lookup = async (req = request, res = response, next) => {
+    const { token } = req.body;
+
+    try {
+        const { uid } = jwt.verify(token, process.env.PRIVATEKEY);
+        
+        const user = await User.findById(uid);
+      
+        if (!user) {
+            return res.status(401).json({
+                msg: 'Invalid token',
+            })
+        }
+
+        // Verify if uid has state = true
+        if (!user.state) {
+            return res.status(401).json({
+                msg: 'Invalid token',
+            })
+        }
+
+        res.json({
+            user,
+            token
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(401).json({
+            msg: 'Invalid token',
+        })
+    }
+}
+
 module.exports = {
     login,
-    googleSignIn
+    googleSignIn,
+    lookup,
 }
